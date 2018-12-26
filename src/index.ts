@@ -23,6 +23,6 @@ wss.on('connection', (ws) => {
     game.players.push(new Player(clientId));
 
     ws.on('close', () => {
-        game.players = game.players.filter(player => player.id == clientId);
+        game.players = game.players.filter(player => player.id !== clientId);
     });
 });
