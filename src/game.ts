@@ -1,27 +1,32 @@
 import { Player } from "./player";
 import { Ticker } from "./ticker";
-import { Subject } from 'rxjs';
 
-interface Snapshot {
+export interface GameOptions {
+    tickRate: number
+}
+
+export interface Snapshot {
     players: Player[]
 }
 
 export class Game {
     private ticker: Ticker;
+    private tickRate: number;
 
-    public snapshot: Subject<Snapshot>;
+    public snapshot: Snapshot;
     public players: Player[];
 
-    constructor() {
-        this.snapshot = new Subject<Snapshot>();
+    constructor(options: GameOptions) {
+        this.snapshot = { players: [] };
+        this.tickRate = options.tickRate;
         this.players = [];
-        this.ticker = new Ticker(this.gameLoop, 12);
+        this.ticker = new Ticker(this.gameLoop, this.tickRate);
     }
 
     private gameLoop = (deltaTime: number): void => {
         for (let i = 0; i < this.players.length; i++) {
             this.players[i].moveForward(deltaTime);
         }
-        this.snapshot.next({ players: this.players });
+        this.snapshot = {players: this.players};
     }
 }

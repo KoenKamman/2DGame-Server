@@ -1,27 +1,40 @@
 import * as WebSocket from 'ws';
 import { Game } from './game';
 import { Player } from './player';
+import { config } from './config';
 
+// Create websocket server
 const wss = new WebSocket.Server({
     port: 8080
 });
-const game = new Game();
 
-let clientCount = 0;
+// Create game instance
+const game = new Game({tickRate: config.tickrate});
 
-game.snapshot.subscribe((snapshot) => {
+// Send snapshots to all connected clients
+setInterval(() => {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(snapshot));
+            client.send(JSON.stringify(game.snapshot));
         }
     });
-});
+}, config.snapshotInterval);
 
+// Websocket connection
+let clientCount = 0;
 wss.on('connection', (ws) => {
+
+    // Register new player
     clientCount++;
     let clientId = clientCount;
     game.players.push(new Player(clientId));
 
+    // Handle user input
+    ws.on('message', (data) => {
+        console.log(data);
+    });
+
+    // Remove player on disconnect
     ws.on('close', () => {
         game.players = game.players.filter(player => player.id !== clientId);
     });

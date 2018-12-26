@@ -15,8 +15,7 @@ export class Ticker {
             let time = Date.now();
             let deltaTime = time - this.lastTime;
             this.lastTime = time;
-            let scalar = deltaTime / (1000 / this.tickRate);
-            this.callback(scalar);
+            this.callback(deltaTime);
         }, 1000 / this.tickRate);
     }
 }

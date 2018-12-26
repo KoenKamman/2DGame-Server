@@ -9,12 +9,12 @@ export class Player {
         this.rotation = 0;
         this.x = 0;
         this.y = 0;
-        this.velocity = 3;
+        this.velocity = 5;
         this.id = id;
     }
 
     public moveForward(deltaTime: number) {
-        this.x += this.velocity * Math.cos(this.rotation) * deltaTime;
-        this.y += this.velocity * Math.sin(this.rotation) * deltaTime;
+        this.x += ((deltaTime / 1000) * this.velocity) * Math.cos(this.rotation) * deltaTime;
+        this.y += ((deltaTime / 1000) * this.velocity) * Math.sin(this.rotation) * deltaTime;
     }
 }
