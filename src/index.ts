@@ -9,7 +9,7 @@ const wss = new WebSocket.Server({
 });
 
 // Create game instance
-const game = new Game({tickRate: config.tickrate});
+const game = new Game({ tickRate: config.tickrate });
 
 // Send snapshots to all connected clients
 setInterval(() => {
@@ -30,9 +30,15 @@ wss.on('connection', (ws) => {
     game.players.push(new Player(clientId));
 
     // Handle user input
-    ws.on('message', (data) => {
-        console.log(data);
-    });
+    ws.onmessage = (message) => {
+        if (message.data && message.data !== "undefined") {
+            let data = JSON.parse(message.data.toString());
+            let player = game.players.find(player => player.id == clientId);
+            if (player) {
+                player.rotation = Math.atan2(data.y - player.y, data.x - player.x);
+            }
+        }
+    };
 
     // Remove player on disconnect
     ws.on('close', () => {
