@@ -1,11 +1,12 @@
 import * as WebSocket from 'ws';
 import { Game } from './game';
-import { Player } from './player';
+import { Player } from './entities/player';
 import { config } from './config';
+import { SnapshotMessage, MessageType, IdentifierMessage, DisconnectMessage } from './message';
 
 // Create websocket server
 const wss = new WebSocket.Server({
-    port: 8080
+    port: config.port
 });
 
 // Create game instance
@@ -13,9 +14,10 @@ const game = new Game({ tickRate: config.tickrate });
 
 // Send snapshots to all connected clients
 setInterval(() => {
+    let message: SnapshotMessage = { type: MessageType.SNAPSHOT, data: game.snapshot() }
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(game.snapshot));
+            client.send(JSON.stringify(message));
         }
     });
 }, config.snapshotInterval);
@@ -28,6 +30,8 @@ wss.on('connection', (ws) => {
     clientCount++;
     let clientId = clientCount;
     game.players.push(new Player(clientId));
+    let message: IdentifierMessage = { type: MessageType.IDENTIFIER, data: clientId }
+    ws.send(JSON.stringify(message));
 
     // Handle user input
     ws.onmessage = (message) => {
@@ -43,5 +47,11 @@ wss.on('connection', (ws) => {
     // Remove player on disconnect
     ws.on('close', () => {
         game.players = game.players.filter(player => player.id !== clientId);
+        let message: DisconnectMessage = { type: MessageType.DISCONNECT, data: clientId }
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify(message));
+            }
+        });
     });
 });

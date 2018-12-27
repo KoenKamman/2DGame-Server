@@ -1,23 +1,18 @@
-import { Player } from "./player";
+import { Player } from "./entities/player";
 import { Ticker } from "./ticker";
+import { Snapshot } from "./snapshot";
 
 export interface GameOptions {
     tickRate: number
-}
-
-export interface Snapshot {
-    players: Player[]
 }
 
 export class Game {
     private ticker: Ticker;
     private tickRate: number;
 
-    public snapshot: Snapshot;
     public players: Player[];
 
     constructor(options: GameOptions) {
-        this.snapshot = { players: [] };
         this.tickRate = options.tickRate;
         this.players = [];
         this.ticker = new Ticker(this.gameLoop, this.tickRate);
@@ -27,6 +22,9 @@ export class Game {
         for (let i = 0; i < this.players.length; i++) {
             this.players[i].moveForward(deltaTime);
         }
-        this.snapshot = {players: this.players};
+    }
+
+    public snapshot() {
+        return new Snapshot(this);
     }
 }
