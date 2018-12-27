@@ -2,7 +2,7 @@ import * as WebSocket from 'ws';
 import { Game } from './game';
 import { Player } from './entities/player';
 import { config } from './config';
-import { SnapshotMessage, MessageType, IdentifierMessage, DisconnectMessage } from './message';
+import { SnapshotMessage, MessageType, DisconnectMessage, ConnectMessage, ServerInfoMessage } from './message';
 
 // Create websocket server
 const wss = new WebSocket.Server({
@@ -30,8 +30,25 @@ wss.on('connection', (ws) => {
     clientCount++;
     let clientId = clientCount;
     game.players.push(new Player(clientId));
-    let message: IdentifierMessage = { type: MessageType.IDENTIFIER, data: clientId }
-    ws.send(JSON.stringify(message));
+
+    // Send message back with id
+    let infoMessage: ServerInfoMessage = {
+        type: MessageType.SERVER_INFO,
+        data: {
+            players: game.players.filter(player => player.id !== clientId),
+            playerId: clientId,
+            snapshotRate: config.snapshotRate
+        }
+    };
+    ws.send(JSON.stringify(infoMessage));
+
+    // Let other players know someone joined
+    let connectMessage: ConnectMessage = { type: MessageType.CONNECT, data: clientId }
+    wss.clients.forEach((client) => {
+        if (client !== ws && client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(connectMessage));
+        }
+    });
 
     // Handle user input
     ws.onmessage = (message) => {

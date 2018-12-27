@@ -1,19 +1,26 @@
 import { Snapshot } from "./snapshot";
+import { ServerInfo } from "./server-info";
 
 export enum MessageType {
-    IDENTIFIER = "identifier",
+    SERVER_INFO = "server_info",
     SNAPSHOT = "snapshot",
-    DISCONNECT = "disconnect"
+    DISCONNECT = "disconnect",
+    CONNECT = "connect"
 }
 
-export interface IdentifierMessage {
-    type: MessageType.IDENTIFIER,
-    data: number
+export interface ServerInfoMessage {
+    type: MessageType.SERVER_INFO,
+    data: ServerInfo
 }
 
 export interface SnapshotMessage {
     type: MessageType.SNAPSHOT
     data: Snapshot
+}
+
+export interface ConnectMessage {
+    type: MessageType.CONNECT
+    data: number
 }
 
 export interface DisconnectMessage {
