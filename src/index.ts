@@ -20,7 +20,7 @@ setInterval(() => {
             client.send(JSON.stringify(message));
         }
     });
-}, config.snapshotInterval);
+}, 1000 / config.snapshotRate);
 
 // Websocket connection
 let clientCount = 0;
