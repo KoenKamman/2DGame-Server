@@ -29,21 +29,22 @@ wss.on('connection', (ws) => {
     // Register new player
     clientCount++;
     let clientId = clientCount;
-    game.players.push(new Player(clientId));
+    let newPlayer = new Player(clientId);
+    game.players.push(newPlayer);
 
-    // Send message back with id
+    // Send message back with server info
     let infoMessage: ServerInfoMessage = {
         type: MessageType.SERVER_INFO,
         data: {
             players: game.players.filter(player => player.id !== clientId),
-            playerId: clientId,
+            player: newPlayer,
             snapshotRate: config.snapshotRate
         }
     };
     ws.send(JSON.stringify(infoMessage));
 
     // Let other players know someone joined
-    let connectMessage: ConnectMessage = { type: MessageType.CONNECT, data: clientId }
+    let connectMessage: ConnectMessage = { type: MessageType.CONNECT, data: newPlayer }
     wss.clients.forEach((client) => {
         if (client !== ws && client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(connectMessage));
@@ -63,8 +64,11 @@ wss.on('connection', (ws) => {
 
     // Remove player on disconnect
     ws.on('close', () => {
+        let player = game.players.find(player => player.id === clientId);
+        if (!player) return;
+
         game.players = game.players.filter(player => player.id !== clientId);
-        let message: DisconnectMessage = { type: MessageType.DISCONNECT, data: clientId }
+        let message: DisconnectMessage = { type: MessageType.DISCONNECT, data: player }
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify(message));

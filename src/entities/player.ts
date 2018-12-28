@@ -9,7 +9,7 @@ export class Player {
         this.rotation = 0;
         this.x = 0;
         this.y = 0;
-        this.velocity = 100;
+        this.velocity = 300;
         this.id = id;
     }
 

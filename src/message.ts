@@ -1,5 +1,6 @@
 import { Snapshot } from "./snapshot";
 import { ServerInfo } from "./server-info";
+import { Player } from "./entities/player";
 
 export enum MessageType {
     SERVER_INFO = "server_info",
@@ -20,10 +21,10 @@ export interface SnapshotMessage {
 
 export interface ConnectMessage {
     type: MessageType.CONNECT
-    data: number
+    data: Player
 }
 
 export interface DisconnectMessage {
     type: MessageType.DISCONNECT
-    data: number
+    data: Player
 }
