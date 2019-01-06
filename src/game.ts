@@ -1,6 +1,8 @@
 import { Player } from "./entities/player";
 import { Ticker } from "./ticker";
 import { Snapshot } from "./snapshot";
+import { EntityManager } from "./ECS/EntityManager";
+import { PositionComponent } from "./Components";
 
 export interface GameOptions {
     tickRate: number
